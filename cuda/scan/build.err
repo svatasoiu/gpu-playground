@@ -1,0 +1,27 @@
+hillis_steele_scan.cu:100:50: warning: unused parameter 'h_arr' [-Wunused-parameter]
+ float shared_hillis_steele_scan(const ull * const h_arr, ull * const h_out, int N)
+                                                  ^
+hillis_steele_scan.cu:100:68: warning: unused parameter 'h_out' [-Wunused-parameter]
+ float shared_hillis_steele_scan(const ull * const h_arr, ull * const h_out, int N)
+                                                                    ^
+hillis_steele_scan.cu:100:79: warning: unused parameter 'N' [-Wunused-parameter]
+ float shared_hillis_steele_scan(const ull * const h_arr, ull * const h_out, int N)
+                                                                               ^
+blelloch_scan.cu:16:38: warning: unused parameter 'h_arr' [-Wunused-parameter]
+ float blelloch_scan(const ull * const h_arr, ull * const h_out, int N)
+                                      ^
+blelloch_scan.cu:16:56: warning: unused parameter 'h_out' [-Wunused-parameter]
+ float blelloch_scan(const ull * const h_arr, ull * const h_out, int N)
+                                                        ^
+blelloch_scan.cu:16:67: warning: unused parameter 'N' [-Wunused-parameter]
+ float blelloch_scan(const ull * const h_arr, ull * const h_out, int N)
+                                                                   ^
+blelloch_scan.cu:21:45: warning: unused parameter 'h_arr' [-Wunused-parameter]
+ float shared_blelloch_scan(const ull * const h_arr, ull * const h_out, int N)
+                                             ^
+blelloch_scan.cu:21:63: warning: unused parameter 'h_out' [-Wunused-parameter]
+ float shared_blelloch_scan(const ull * const h_arr, ull * const h_out, int N)
+                                                               ^
+blelloch_scan.cu:21:74: warning: unused parameter 'N' [-Wunused-parameter]
+ float shared_blelloch_scan(const ull * const h_arr, ull * const h_out, int N)
+                                                                          ^

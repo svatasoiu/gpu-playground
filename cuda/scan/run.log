@@ -1,0 +1,3 @@
+./scan 1048576
+Sequential code code ran in: 2026 us.
+Algo hillis_steele_scan took 2.26 ms

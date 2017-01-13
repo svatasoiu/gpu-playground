@@ -1,0 +1,4 @@
+g++ -c main.cpp -O3 -Wall -Wextra -m64 -std=c++11 -I /usr/local/cuda-5.0/include -I /usr/include
+nvcc -c hillis_steele_scan.cu -O3 -arch=sm_20 -Xcompiler -Wall -Xcompiler -Wextra -m64
+nvcc -c blelloch_scan.cu -O3 -arch=sm_20 -Xcompiler -Wall -Xcompiler -Wextra -m64
+nvcc -o scan main.o hillis_steele_scan.o blelloch_scan.o -L /usr/lib -lopencv_core -lopencv_imgproc -lopencv_highgui -O3 -arch=sm_20 -Xcompiler -Wall -Xcompiler -Wextra -m64
