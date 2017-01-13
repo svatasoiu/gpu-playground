@@ -1,2 +1,4 @@
 *.gallium_bin
-
+*.err
+*.log
+*.o

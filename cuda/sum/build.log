@@ -1,3 +1,0 @@
-g++ -c main.cpp -O3 -Wall -Wextra -m64 -I /usr/local/cuda-5.0/include -I /usr/include
-nvcc -c parallel_sum.cu -O3 -arch=sm_20 -Xcompiler -Wall -Xcompiler -Wextra -m64
-nvcc -o sum main.o parallel_sum.o -L /usr/lib -lopencv_core -lopencv_imgproc -lopencv_highgui -O3 -arch=sm_20 -Xcompiler -Wall -Xcompiler -Wextra -m64
