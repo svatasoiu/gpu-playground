@@ -1,0 +1,5 @@
+./sum 33554432
+Sequential code code ran in: 27806 us.
+Your parallel code ran in: 22.658337 msecs.
+5.6295e+14 vs 5.6295e+14
+Parallel code+malloc: 47.216576 msecs.
