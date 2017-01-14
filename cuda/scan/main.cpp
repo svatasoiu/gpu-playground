@@ -17,7 +17,7 @@ struct scanner_t {
 };
 
 float hillis_steele_scan(const ull * const, ull * const, int);
-float shared_hillis_steele_scan(const ull * const, ull * const, int);
+float blocked_scan(const ull * const, ull * const, int);
 float blelloch_scan(const ull * const, ull * const, int);
 float shared_blelloch_scan(const ull * const, ull * const, int);
 
@@ -37,14 +37,14 @@ int main(int argc, char **argv) {
 
   scanner_t parallel_algos[] = {
     MAKE_SCANNER(hillis_steele_scan), 
-    // MAKE_SCANNER(shared_hillis_steele_scan),
+    MAKE_SCANNER(blocked_scan),
     // MAKE_SCANNER(blelloch_scan),
     // MAKE_SCANNER(shared_blelloch_scan)
   };
 
   // make initial array
   for (int i = 0; i < N; ++i)
-    h_arr[i] = i;
+    h_arr[i] = i; // TODO: check this
 
   // time naive, sequential method
   timeval tv;
@@ -58,19 +58,22 @@ int main(int argc, char **argv) {
   gettimeofday(&tv, 0);
   cpu_time = tv.tv_usec - cpu_time;
 
-  printf("Sequential code code ran in: %llu us.\n",cpu_time);
+  printf("Sequential code code ran in: %.2f ms.\n", (float)cpu_time/1000.f);
 
   // set up gpu
   for (scanner_t scanner : parallel_algos) {
     gpu_time = scanner.scan(h_arr, h_gpu_out, N);
     cudaDeviceSynchronize(); 
 
+    printf("Algo %s took %.2f ms\n", scanner.name.c_str(), gpu_time);
+
     // check h_gpu_out matches h_out
     for (int i = 0; i < N; ++i) {
-      // std::cout << i << " " << h_arr[i] << " " << h_out[i] << " " << h_gpu_out[i] << std::endl;
-      assert(h_out[i] == h_gpu_out[i] && "gpu output didn't match");
+      if (h_out[i] != h_gpu_out[i]) {
+        std::cout << i << " " << h_arr[i] << " " << h_out[i] << " " << h_gpu_out[i] << std::endl;
+        assert(false && "gpu output didn't match");
+      } 
     }
-    printf("Algo %s took %.2f ms\n", scanner.name.c_str(), gpu_time);
   }
 
   free(h_arr);
