@@ -28,7 +28,7 @@ EXEC=scan
 
 all: $(EXEC)
 
-scan: main.o hillis_steele_scan.o blelloch_scan.o
+scan: main.o hillis_steele_scan.o blelloch_scan.o blocked_scan.o
 	$(NVCC) -o $@ $^ -L $(OPENCV_LIBPATH) $(OPENCV_LIBS) $(NVCC_OPTS)
 
 main.o: main.cpp timer.h utils.h
@@ -38,7 +38,7 @@ main.o: main.cpp timer.h utils.h
 	nvcc -c $< $(NVCC_OPTS)
 
 run: $(EXEC)
-	./$(EXEC) 1048576
+	./$(EXEC) 16777216
 
 clean:
 	rm -f *.o $(EXEC)

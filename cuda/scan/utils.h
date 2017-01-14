@@ -11,7 +11,15 @@
 #include <cassert>
 #include <cmath>
 
+#define MAX_BLOCK_SIZE 1<<10
+#define MAX_GRID_SIZE 1<<15
 #define checkCudaErrors(val) check( (val), #val, __FILE__, __LINE__)
+#define DISPLAY(x) std::cout << #x << ": " << (x) << std::endl
+
+template <class T>
+inline T round_up(T num, T divisor) {
+    return (num + divisor - 1)/divisor;
+}
 
 typedef unsigned long long ull;
 
