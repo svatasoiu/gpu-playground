@@ -6,7 +6,7 @@
 
 if [ $# -eq 0 ]
 then
-	echo "USAGE: $0 <dir to copy> [ssh user]"
+	echo "USAGE: $0 <dir to copy> [pause] [ssh user]"
 	exit 1
 fi
 
@@ -15,9 +15,15 @@ LOCAL_DIR=$1
 SSH_USER=svatasoi
 SSH_ADDR=ssh.cs.brown.edu
 
+PAUSE=0
 if [ $# -gt 1 ]
 then
-	SSH_USER="$2"
+	PAUSE="$2"
+fi
+
+if [ $# -gt 2 ]
+then
+	SSH_USER="$3"
 fi
 
 if [ ! -f $LOCAL_DIR/Makefile ]
@@ -41,12 +47,21 @@ EOF
 
 printf "\n========Running Code Remotely========\n\n"
 
+if [ $PAUSE -eq 0 ]
+then
 ssh -t -t $SSH_USER@$SSH_ADDR << EOF
 	cd $TMP_DIR/$LOCAL_DIR
 	make >build.log 2>build.err
 	make run >run.log 2>run.err
 	exit
 EOF
+else
+ssh -t -t $SSH_USER@$SSH_ADDR << EOF
+	cd $TMP_DIR/$LOCAL_DIR
+	make >build.log 2>build.err
+	make run >run.log 2>run.err
+EOF
+fi
 
 printf "\n========Retrieving Results========\n\n"
 
