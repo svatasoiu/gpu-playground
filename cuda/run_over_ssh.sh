@@ -47,20 +47,16 @@ EOF
 
 printf "\n========Running Code Remotely========\n\n"
 
-if [ $PAUSE -eq 0 ]
-then
 ssh -t -t $SSH_USER@$SSH_ADDR << EOF
 	cd $TMP_DIR/$LOCAL_DIR
 	make >build.log 2>build.err
 	make run >run.log 2>run.err
 	exit
 EOF
-else
-ssh -t -t $SSH_USER@$SSH_ADDR << EOF
-	cd $TMP_DIR/$LOCAL_DIR
-	make >build.log 2>build.err
-	make run >run.log 2>run.err
-EOF
+
+if [ $PAUSE -ne 0 ]
+then
+ssh -X $SSH_USER@$SSH_ADDR
 fi
 
 printf "\n========Retrieving Results========\n\n"
