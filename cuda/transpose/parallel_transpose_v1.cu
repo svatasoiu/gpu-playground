@@ -1,5 +1,3 @@
-//Radix Sorting
-
 #include <iostream>
 #include "timer.h"
 #include "utils.h"
@@ -27,17 +25,19 @@ float parallel_transpose_v1(const T *h_matrix, T *h_output, const size_t N)
 
   cudaMalloc((void **) &d_matrix, matrixSize);
   cudaMalloc((void **) &d_output, matrixSize);
-
+CHECK_ERR
   cudaMemcpy(d_matrix, h_matrix, matrixSize, cudaMemcpyHostToDevice);
 
   GpuTimer timer;
   timer.Start();
   transpose_v1<<<gridSize, blockSize>>>(d_matrix, d_output, N);
+CHECK_ERR
   timer.Stop();
   cudaMemcpy(h_output, d_output, matrixSize, cudaMemcpyDeviceToHost);
 
   cudaFree(d_matrix);
   cudaFree(d_output);
+CHECK_ERR
 
   return timer.Elapsed();
 }
