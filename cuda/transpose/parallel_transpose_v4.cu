@@ -6,7 +6,8 @@ template <typename T>
 __global__
 void transpose_v4(const T * const d_mat, T * const d_out, const size_t N) 
 {
-  extern __shared__ T s_mat[];
+  extern __shared__ __align__(sizeof(T)) unsigned char s_mem[];
+  T *s_mat = reinterpret_cast<T *>(s_mem);
 
   int tix = threadIdx.x, tiy = threadIdx.y;
   int bdx = blockDim.x, bdy = blockDim.y;
@@ -50,4 +51,6 @@ CHECK_ERR
 }
 
 // initialize transpose for certain types
+INIT_TRANSPOSE_FUNC(parallel_transpose_v4, ui);
 INIT_TRANSPOSE_FUNC(parallel_transpose_v4, ull);
+INIT_TRANSPOSE_FUNC(parallel_transpose_v4, float);

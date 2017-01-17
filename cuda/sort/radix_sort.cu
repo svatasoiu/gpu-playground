@@ -61,6 +61,7 @@ void reorder_kernel(const T* const d_input, T* const d_output,
   d_output[d_newPos[x]] = d_input[x];
 }
 
+// TODO: max this faster
 template <typename T>
 void radix_sort(const T *h_input, T *h_output, const size_t N)
 {

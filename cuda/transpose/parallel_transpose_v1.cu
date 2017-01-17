@@ -43,4 +43,6 @@ CHECK_ERR
 }
 
 // initialize transpose for certain types
+INIT_TRANSPOSE_FUNC(parallel_transpose_v1, ui);
 INIT_TRANSPOSE_FUNC(parallel_transpose_v1, ull);
+INIT_TRANSPOSE_FUNC(parallel_transpose_v1, float);

@@ -16,4 +16,6 @@ float sequential_transpose_v1(const T *mat, T *out, const size_t N)
 }
 
 // initialize transpose for certain types
+INIT_TRANSPOSE_FUNC(sequential_transpose_v1, ui);
 INIT_TRANSPOSE_FUNC(sequential_transpose_v1, ull);
+INIT_TRANSPOSE_FUNC(sequential_transpose_v1, float);
