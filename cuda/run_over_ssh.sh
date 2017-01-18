@@ -67,10 +67,15 @@ sftp $SSH_USER@$SSH_ADDR << END
 	cd $TMP_DIR/$LOCAL_DIR
 	get *.log
 	get *.err
-	cd /home/$SSH_USER
-	rm $TMP_DIR/$LOCAL_DIR/*
-	rmdir $TMP_DIR/$LOCAL_DIR
-	rmdir $TMP_DIR
 	exit
 END
 popd >/dev/null
+
+printf "\n========Removing Remote Files========\n\n"
+
+ssh -t -t $SSH_USER@$SSH_ADDR << EOF
+	rm -rf $TMP_DIR
+	exit
+EOF
+
+printf  "\n========Done!========\n"
