@@ -36,12 +36,10 @@ int main(int argc, char **argv) {
     printf("Error: failed to open %s\n", argv[1]);
     exit(1);
   }
-  
-  SimpleSequentialPricer<test_type_t> ssp();
-  SimpleParallelPricer<test_type_t>   spp();
 
   options::Pricer<test_type_t> *pricers[] = {
-    &ssp, &spp
+    new SimpleSequentialPricer<test_type_t>(),
+    new SimpleParallelPricer<test_type_t>()
   };
 
   printf("Benchmarks run using data type of size %lu bytes\n", sizeof(test_type_t));
@@ -58,13 +56,13 @@ int main(int argc, char **argv) {
       pricing_output = pricer->price(pargs);
       cudaDeviceSynchronize(); 
       pricing_output.display();
-      // bool success = check_matrices(h_mat, h_out, N);
-      // print_test_case_result(success, "%6.2f ms ", transposing_time);
-      // print_test_case_result(success, "(%6.2f GB/s) ", 2 * matrixSize / transposing_time / 1000000.f );
     }
 
     printf("\n");
   }
+
+  for (auto pricer : pricers)
+    delete pricer;
 
   return 0;
 }

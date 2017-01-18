@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdio.h>
 #include <string>
 
 namespace options {
@@ -35,12 +36,14 @@ struct pricing_args {
 	size_t    n_trials; // number of trials to simulate
 	size_t    path_len; // number of steps in path from 0->T
 
-	void display();
+	void display() {
+		printf("%lu %lu\n", n_trials, path_len);
+	}
 };
 
 template <typename T>
 pricing_args<T> parse_args(const std::string& line) {
-	return {nullptr, 0, 0};
+	return {NULL, 0, 0};
 }
 
 template <typename T>
@@ -50,12 +53,15 @@ struct pricing_output {
 	
 	float pricing_time;
 
-	void display();
+	void display() {
+		printf("%f %f %f\n", price, variance, pricing_time);
+	}
 };
 
 template <typename T>
 class Pricer {
 public:
+	virtual ~Pricer() { ; };
 	virtual pricing_output<T> price(pricing_args<T>&) = 0;
 };
 

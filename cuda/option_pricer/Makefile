@@ -7,32 +7,36 @@ GCC_OPTS=-O3 -Wall -Wextra -m64 -std=c++11
 
 EXEC=option_pricer
 
-PRICER_DIR=pricers
-SEQUENTIAL_PRICER_DIR=$(PRICER_DIR)/cpp
-PARALLEL_PRICER_DIR=$(PRICER_DIR)/cuda
+BIN_DIR=bin
+SRC_DIR=src
+TEST_DIR=test
 
-SEQUENTIAL_PRICERS=$(wildcard $(SEQUENTIAL_PRICER_DIR)/*.[ct]pp)
-PARALLEL_PRICERS=$(wildcard $(PARALLEL_PRICER_DIR)/*.cu)
+PRICER_DIR=$(SRC_DIR)/pricers
 
-OBJECTS=$(patsubst %.cpp,%.o,$(SEQUENTIAL_PRICERS))
-OBJECTS+=$(patsubst %.cu,%.o,$(PARALLEL_PRICERS))
+CPP_PRICERS=$(wildcard $(PRICER_DIR)/*.cpp)
+CUDA_PRICERS=$(wildcard $(PRICER_DIR)/*.cu)
+
+CPP_OBJECTS=$(patsubst %.cpp,%.o,$(CPP_PRICERS))
+CUDA_OBJECTS=$(patsubst %.cu,%.o,$(CUDA_PRICERS))
+
+OBJECTS=$(CPP_OBJECTS) $(CUDA_OBJECTS)
 
 all: $(EXEC)
 
 $(EXEC): main.o $(OBJECTS)
-	$(NVCC) -o $@ $^ -L $(NVCC_OPTS)
+	$(NVCC) $^ -o $(BIN_DIR)/$@ -L $(NVCC_OPTS)
 
-main.o: main.cpp
+main.o: $(SRC_DIR)/main.cpp
 	g++ -c $< $(GCC_OPTS) -I $(INCL_DIR) -I $(CUDA_INCLUDEPATH)
 
-$(SEQUENTIAL_PRICER_DIR)/%.o: $(SEQUENTIAL_PRICER_DIR)/%.cpp
-	g++ -c $< $(GCC_OPTS)
+$(CPP_OBJECTS):%.o:%.cpp
+	g++ -c $< -o $(basename $@).o $(GCC_OPTS) -I $(INCL_DIR)
 
-$(PARALLEL_PRICER_DIR)/%.o: $(PARALLEL_PRICER_DIR)/%.cu
-	nvcc -c $< $(NVCC_OPTS)
+$(CUDA_OBJECTS):%.o:%.cu
+	nvcc -c $< -o $(basename $@).o $(NVCC_OPTS) -I $(INCL_DIR)
 
 run: $(EXEC)
-	@./$(EXEC) options.in
+	@./$(BIN_DIR)/$(EXEC) $(TEST_DIR)/sample_options.in
 
 clean:
-	rm -f $(OBJ_DIR)/*.o $(EXEC)
+	rm -f $(OBJECTS) $(BIN_DIR)/$(EXEC)

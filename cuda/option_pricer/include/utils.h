@@ -24,7 +24,7 @@ typedef unsigned long long ull;
 #define CHECK_ERR checkCudaErrors(cudaGetLastError());
 #endif
 
-#define INIT_PRICER(p, T) template class f<T>
+#define INIT_PRICER(p, T) template class p<T>;
 
 template <class T>
 inline T round_up(T num, T divisor) {
@@ -43,14 +43,6 @@ void check(T err, const char* const func, const char* const file, const int line
 
 // memory info
 // taken from (https://devtalk.nvidia.com/default/topic/389173/cumemgetinfo-/)
-static void printStats(CUdevprop &prop)
-{
-  printf(" warp size: %d\n", prop.SIMDWidth);
-  printf(" sharedMemPerBlock : %d KB\n", prop.sharedMemPerBlock/1024);
-  printf(" clockRate: %d MHz\n", prop.clockRate/1024);
-  printf(" Maximum Theo Bandwidth: %d GB/s\n", prop.clockRate*128/1024/1024);
-}
-
 static void displayDeviceInfo() {
   int nDevices;
   cudaGetDeviceCount(&nDevices);
@@ -78,13 +70,13 @@ static void displayDeviceInfo() {
 #define ANSI_COLOR_CYAN    "\x1b[36m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
-static void print_test_case_result(bool success, const char *format, ...) {
-  printf(success ? ANSI_COLOR_GREEN : ANSI_COLOR_RED);
-  va_list vl;
-  va_start(vl, format);
-  vprintf(format, vl);
-  va_end(vl);
-  printf(ANSI_COLOR_RESET);
-}
+// static void print_test_case_result(bool success, const char *format, ...) {
+//   printf(success ? ANSI_COLOR_GREEN : ANSI_COLOR_RED);
+//   va_list vl;
+//   va_start(vl, format);
+//   vprintf(format, vl);
+//   va_end(vl);
+//   printf(ANSI_COLOR_RESET);
+// }
 
 #endif

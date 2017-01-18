@@ -5,7 +5,6 @@
 
 using namespace options;
 
-
 template <typename T>
 pricing_output<T> SimpleSequentialPricer<T>::price(pricing_args<T>&) {
   return {0,0,1.f};
