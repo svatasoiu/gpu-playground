@@ -1,0 +1,43 @@
+How to build: just run 'make' in the project directory. Should create two binaries, price_option and baseline_price
+How to run: see Examples
+Compiler and System Information: I tested/wrote this on 64bit Xubuntu Linux, using gcc version 4.8.4. 
+
+Description of binaries/shell scripts:
+	baseline_price: This implements the bare minimum of monte carlo simulation for pricing a European Option with time discretization
+	price_option: This adds the option to use antithetic or control variate variance reduction, and also adds the option to do the simulation using multiple threads.
+	compare_simulation_methods.sh: Runs all three methods (no reduction, antithetic, control variate) using the same parameters.
+
+Interesting bug I had at one point:
+I used to define large arrays like samples or estimates (a double array of size num_trials, which can be a large number like 10^8) as a local variable in main() which means that the array was allocated on the main thread's stack. This meant that if num_trials was large enough, the stack would get filled up and everything crashed. I resolved this my dynamically allocating these large arrays on the heap (using calloc/malloc).
+
+Note: I don't error check a few function calls (specifically calloc), however if calloc fails, we are out of memory, so we have bigger problems to deal with. I could have error checked these functions, but it would ruin the readability of some of the code.
+
+Examples:
+./baseline_price c 20 22 0.05 2 0.25 100000 10
+This computes the price of a European Call Option with 
+	initial stock price, S0=20
+	strike, K=22
+	annualized risk-free interest rate, r=0.05
+	time to maturity (in years), T=2
+	volatility, vol=0.25
+using 100000 trials, and a path of 10 time steps
+
+./price_option 1 p 50 45 0.05 1 0.2 100000 100 20
+This computes the price of a European Put Option (with antithetic variance reduction) with 
+	initial stock price, S0=50
+	strike, K=45
+	annualized risk-free interest rate, r=0.05
+	time to maturity (in years), T=1
+	volatility, vol=0.2
+using 100000 trials, and a path of 100 time steps, using 20 threads
+
+./compare_simulation_methods.sh call 20 22 0.05 2 0.25 1000000 100 50
+This computes the price of a European Call Option (with no var. reduction, antithetic, and control variate) with 
+	initial stock price, S0=20
+	strike, K=22
+	annualized risk-free interest rate, r=0.05
+	time to maturity (in years), T=2
+	volatility, vol=0.25
+using 1000000 trials, and a path of 100 time steps, using 50 threads
+
+Keep in mind that this last example will need simulate 3*1000000*100=300 million time steps, so using multithreading has a noticeable benefit. On my machine (quadcore, with 2 hyperthreads/core), running this in a single thread takes ~23 seconds. With 8 threads, it is about 5 seconds, but the benefit diminishes greatly after 8 threads (since I have 8 total hyperthreads).
