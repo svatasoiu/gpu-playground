@@ -7,6 +7,12 @@
 // produces samples, then combines them into estimate
 namespace monte_carlo {
 
+enum var_red_t {
+	NO_REDUCTION    = 0, 
+	ANTITHETIC      = 1,
+	CONTROL_VARIATE = 2
+};
+
 template <class T>
 class SampleGenerator {
 public:

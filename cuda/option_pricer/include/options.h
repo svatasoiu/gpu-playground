@@ -1,22 +1,33 @@
 #pragma once
 
+#include <istream>
 #include <ostream>
+#include <sstream>
 #include <stdio.h>
 #include <string>
+#include <stdexcept>
+#include <vector>
 
 namespace options {
-
-enum var_red_t {
-	NO_REDUCTION    = 0, 
-	ANTITHETIC      = 1,
-	CONTROL_VARIATE = 2
-};
 
 enum option_type_t {
 	EUROPEAN,
 	AMERICAN,
 	ASIAN
 };
+
+static std::ostream& operator<<(std::ostream& os, const option_type_t& t) {
+	switch (t) {
+	case EUROPEAN:
+		return os << "european";
+	case AMERICAN:
+		return os << "american";
+	case ASIAN:
+		return os << "asian";
+	default:
+		return os << "UNKNOWN";
+	}
+}
 
 // T is typically float or double
 template <typename T>
@@ -34,7 +45,7 @@ struct option_params {
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const option_params<T>& o) {
 	return os << o.type << " " 
-			  << o.is_call << " " 
+			  << (o.is_call ? "call" : "put" ) << " " 
 			  << o.S0 << " " 
 			  << o.r << " " 
 			  << o.ttm << " " 
@@ -59,11 +70,6 @@ std::ostream& operator<<(std::ostream& os, const pricing_args<T>& pargs) {
 }
 
 template <typename T>
-pricing_args<T> parse_args(const std::string& line) {
-	return {0, 0, 0};
-}
-
-template <typename T>
 struct pricing_output {
 	T price;
 	T variance;
@@ -85,5 +91,44 @@ public:
 	virtual pricing_output<T> price(pricing_args<T>&) = 0;
 	virtual std::string getName() = 0;
 };
+
+// this is going to be messy/hacky
+template <typename T>
+pricing_args<T> parse_args(const std::string& line) {
+	pricing_args<T> pargs = {0};
+	std::stringstream ss;
+    ss.str(line);
+	ss >> pargs;
+	return pargs;
+}
+
+template <typename T>
+std::istream& parse_euro_args(std::istream& is, pricing_args<T>& pargs) {
+	std::string tmp;
+	is >> tmp;
+	if (tmp == "c" || tmp == "call") {
+		pargs.option.is_call = true;
+	} else if (tmp == "p" || tmp == "put") {
+		pargs.option.is_call = false;
+	} else {
+		throw std::invalid_argument("must specify call or put, got: " + tmp);
+	}
+
+	return is >> pargs.option.S0 >> pargs.option.r 
+			  >> pargs.option.ttm >> pargs.option.K 
+			  >> pargs.option.vol >> pargs.n_trials;
+}
+
+template <typename T>
+std::istream& operator>>(std::istream& is, pricing_args<T>& pargs) {
+	std::string tmp;
+    is >> tmp;
+	if (tmp == "euro" || tmp == "european") {
+		pargs.option.type = options::EUROPEAN;
+		return parse_euro_args(is, pargs);
+	} else {
+		throw std::invalid_argument("unknown option type: " + tmp);
+	}
+}
 
 }

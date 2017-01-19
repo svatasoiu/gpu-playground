@@ -49,7 +49,13 @@ int main(int argc, char **argv) {
 
   std::string line;
   while (std::getline(inputFile, line)) {
-    auto pargs = pricers::parse_args<test_type_t>(line);
+    pricers::pricing_args<test_type_t> pargs;
+    try {
+      pargs = pricers::parse_args<test_type_t>(line);
+    } catch (std::exception& err) {
+      std::cerr << "Could not parse option: " << line << " [" << err.what() << "]" << std::endl;
+      continue;
+    }
     std::cout << "Option: " << pargs << std::endl;
 
     pricers::pricing_output<test_type_t> pricing_output;
