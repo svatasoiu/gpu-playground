@@ -4,9 +4,14 @@
 
 using namespace options;
 
+namespace pricers {
+
 template <typename T>
 class SimpleParallelPricer : public Pricer<T> {
 public:
   ~SimpleParallelPricer() {;}
   pricing_output<T> price(pricing_args<T>&);
+  std::string getName();
 };
+
+}

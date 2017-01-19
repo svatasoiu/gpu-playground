@@ -1,5 +1,6 @@
 #include <cassert>
 #include <cstring>
+#include <iostream>
 #include <fstream>
 #include <string>
 #include <stdio.h>
@@ -9,6 +10,7 @@
 #include "pricers.h"
 #include "options.h"
 #include "utils.h"
+#include "timer.h"
 
 typedef double test_type_t;
 
@@ -37,28 +39,33 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
-  options::Pricer<test_type_t> *pricers[] = {
-    new SimpleSequentialPricer<test_type_t>(),
-    new SimpleParallelPricer<test_type_t>()
+  pricers::Pricer<test_type_t> *pricers[] = {
+    new pricers::BlackScholesEuroPricer<test_type_t>(),
+    new pricers::SimpleSequentialPricer<test_type_t>(),
+    new pricers::SimpleParallelPricer<test_type_t>()
   };
 
   printf("Benchmarks run using data type of size %lu bytes\n", sizeof(test_type_t));
 
   std::string line;
   while (std::getline(inputFile, line)) {
-    auto pargs = options::parse_args<test_type_t>(line);
-    pargs.display();
+    auto pargs = pricers::parse_args<test_type_t>(line);
+    std::cout << "Option: " << pargs << std::endl;
 
-    options::pricing_output<test_type_t> pricing_output;
+    pricers::pricing_output<test_type_t> pricing_output;
 
     // run each pricer
     for (auto pricer : pricers) {
+      GpuTimer timer;
+      timer.Start();
       pricing_output = pricer->price(pargs);
+      timer.Stop();
       cudaDeviceSynchronize(); 
-      pricing_output.display();
+      pricing_output.pricing_time = timer.Elapsed();
+      std::cout << "  " << pricer->getName() << ": " << pricing_output << std::endl;
     }
 
-    printf("\n");
+    std::cout << std::endl;
   }
 
   for (auto pricer : pricers)

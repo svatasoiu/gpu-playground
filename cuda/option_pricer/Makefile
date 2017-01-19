@@ -13,6 +13,7 @@ TEST_DIR=test
 
 PRICER_DIR=$(SRC_DIR)/pricers
 
+# TODO: make this fully recursive in SRC_DIR
 CPP_PRICERS=$(wildcard $(PRICER_DIR)/*.cpp)
 CUDA_PRICERS=$(wildcard $(PRICER_DIR)/*.cu)
 
