@@ -27,8 +27,8 @@ private:
     static_assert(std::is_floating_point<ValueT>::value,
         "RandomWalkGenerator requires a container of floating point type");
 
-    ValueT S0, t, r, vol;
-    size_t path_len;
+    const ValueT S0, t, r, vol;
+    const size_t path_len;
 
     std::default_random_engine generator;
     std::normal_distribution<ValueT> distribution;
@@ -53,14 +53,16 @@ class EuropeanPathPayoff : public PayoffCalculator<SampleT, typename SampleT::va
 private:
     using ValueT = typename SampleT::value_type;
 
-    bool is_call;
-    ValueT K;
+    const bool is_call;
+    const ValueT discount;
+    const ValueT K;
 public:
-    EuropeanPathPayoff(bool is_call, ValueT K) : is_call(is_call), K(K) {}
+    EuropeanPathPayoff(const bool is_call, const ValueT discount, const ValueT K)
+     : is_call(is_call), discount(discount), K(K) {}
     ~EuropeanPathPayoff() {}
     
     ValueT calculate(const SampleT& path) {
-        return (is_call ? std::max(path.back() - K, (ValueT)0) : std::max(K - path.back(), (ValueT)0));
+        return discount * (is_call ? std::max(path.back() - K, (ValueT)0) : std::max(K - path.back(), (ValueT)0));
     }
 };
 

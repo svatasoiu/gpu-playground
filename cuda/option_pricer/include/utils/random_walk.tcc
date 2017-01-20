@@ -27,9 +27,9 @@ void RandomWalkGenerator<T>::generateSample(T& path) {
 	const ValueT c2 = vol * sqrt(dt);
 
 	for (size_t i = 0; i < path_len; ++i) {
-		path[i] = exp(log_price);
 		ValueT rnd = distribution(generator);
 		log_price += c1 + c2 * rnd;
+		path[i] = exp(log_price);
 	}
 }
 

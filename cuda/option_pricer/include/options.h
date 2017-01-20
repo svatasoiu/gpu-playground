@@ -81,7 +81,7 @@ template <typename T>
 std::ostream& operator<<(std::ostream& os, const pricing_output<T>& pout) {
 	return os << "est: " << pout.price 
 			  << ", stderr: " << pout.stderr
-			  << ", time: " << pout.pricing_time;
+			  << ", time: " << pout.pricing_time << "ms";
 }
 
 template <typename T>
