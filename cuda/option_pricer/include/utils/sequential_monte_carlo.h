@@ -1,50 +1,83 @@
 #pragma once
 
 #include "utils/stats.h"
+
+#include <random>
+#include <type_traits>
 #include <vector>
 
 // generic monte carlo simulator 
 // produces samples, then combines them into estimate
 namespace monte_carlo {
 
-enum var_red_t {
-	NO_REDUCTION    = 0, 
-	ANTITHETIC      = 1,
-	CONTROL_VARIATE = 2
-};
-
 template <class T>
 class SampleGenerator {
 public:
-    SampleGenerator();
-    virtual ~SampleGenerator() = 0;
+    SampleGenerator() {}
+    virtual ~SampleGenerator() {}
 
-    virtual T generateSample() = 0;
+    virtual void generateSample(T&) = 0;
+};
+
+template <class T>
+class RandomWalkGenerator : public SampleGenerator<T> {
+    // static assert T has some sort of ordering (like vector)
+private:
+    using ValueT = typename T::value_type;
+    static_assert(std::is_floating_point<ValueT>::value,
+        "RandomWalkGenerator requires a container of floating point type");
+
+    ValueT S0, t, r, vol;
+    size_t path_len;
+
+    std::default_random_engine generator;
+    std::normal_distribution<ValueT> distribution;
+public:
+    RandomWalkGenerator(ValueT S0, ValueT t, ValueT r, ValueT vol, size_t path_len);
+    ~RandomWalkGenerator();
+
+    void generateSample(T&);
 };
 
 template <class SampleT, class OutputT>
 class PayoffCalculator {
 public:
-    PayoffCalculator();
-    virtual ~PayoffCalculator() = 0;
+    PayoffCalculator() {}
+    virtual ~PayoffCalculator() {}
     
     virtual OutputT calculate(const SampleT&) = 0;
+};
+
+template <class SampleT>
+class EuropeanPathPayoff : public PayoffCalculator<SampleT, typename SampleT::value_type> {
+private:
+    using ValueT = typename SampleT::value_type;
+
+    bool is_call;
+    ValueT K;
+public:
+    EuropeanPathPayoff(bool is_call, ValueT K) : is_call(is_call), K(K) {}
+    ~EuropeanPathPayoff() {}
+    
+    ValueT calculate(const SampleT& path) {
+        return (is_call ? std::max(path.back() - K, (ValueT)0) : std::max(K - path.back(), (ValueT)0));
+    }
 };
 
 template <typename T>
 struct MonteCarloResult {
 	T estimate;
-	T variance;
+	T stderr;
 };
 
 template <class SampleT, class OutputT>
 class MonteCarlo {
     // static assert that outputT is numeric
 protected:
-    const SampleGenerator<SampleT> &generator;
-    const PayoffCalculator<SampleT,OutputT> &payoff;
+    SampleGenerator<SampleT>& generator;
+    PayoffCalculator<SampleT,OutputT>& payoff;
 public:
-    MonteCarlo(const SampleGenerator<SampleT> &g, const PayoffCalculator<SampleT,OutputT> &p) 
+    MonteCarlo(SampleGenerator<SampleT> &g, PayoffCalculator<SampleT,OutputT> &p) 
         : generator(g), payoff(p) { ; }
 
     virtual ~MonteCarlo() { ; }
@@ -55,15 +88,18 @@ public:
 template <class SampleT, class OutputT>
 class SimpleMonteCarlo : public MonteCarlo<SampleT, OutputT> {
 public:
-    SimpleMonteCarlo(const SampleGenerator<SampleT> &g, const PayoffCalculator<SampleT,OutputT> &p) 
+    SimpleMonteCarlo(SampleGenerator<SampleT> &g, PayoffCalculator<SampleT,OutputT> &p) 
         : MonteCarlo<SampleT, OutputT>(g, p) { ; }
-    virtual ~SimpleMonteCarlo();
+    ~SimpleMonteCarlo() {}
 
-    virtual MonteCarloResult<OutputT> estimate(size_t num_trials) {
+    MonteCarloResult<OutputT> estimate(size_t num_trials) {
+        SampleT sample;
         std::vector<OutputT> estimates(num_trials);
-
-        for (size_t i = 0; i < num_trials; ++i)
-            estimates[i] = this->payoff.calculate(this->generator.generateSample());
+        
+        for (size_t i = 0; i < num_trials; ++i) {
+            this->generator.generateSample(sample);
+            estimates[i] = this->payoff.calculate(sample);
+        }
 
         return {
             stats::mean(estimates), 
@@ -84,24 +120,5 @@ public:
 */
 }
 
-/*
-template <typename T>
-struct monte_args_t {
-	T S0;  // initial stock price
-	T r;   // risk-free interest rate
-	T ttm;   // time to maturity
-	T K;   // strike price
-	T vol; // volatility
-	size_t    n_trials; // number of trials to simulate
-	size_t    path_len; // number of steps in path from 0->T
-
-	std::vector<T>& samples;    // output array for estimates produced by these simulations
-	std::vector<T>& antithetic; // output array for secondary estimates (only used in antithetic variance reduction)
-	unsigned int seed;  // seed for thread doing these simulations
-	int (*mc_func)(monte_args_t&); // function to use for sampling
-};
-
-int mc_no_reduction(monte_args_t &args);
-int mc_antithetic(monte_args_t &args);
-int mc_control_variate(monte_args_t &args);
-*/
+// template implementation
+#include "utils/random_walk.tcc"

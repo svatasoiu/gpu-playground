@@ -17,10 +17,10 @@ T mean(std::vector<T>& v) {
 
 template <class T> 
 T standard_error(std::vector<T> &v) {
-    size_t len = v.size();
+    auto len = v.size();
 	T tmp = 0.;
-	for (size_t i = 0; i < v.size(); ++i) 
-		tmp += v[i]*v[i];
+	for (auto elt : v) 
+		tmp += elt * elt;
 	T avg = mean(v);
 	tmp -= len*avg*avg;
 	return sqrt(tmp/len/(len-1));

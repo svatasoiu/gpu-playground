@@ -7,29 +7,24 @@
 #include "utils/sequential_monte_carlo.h"
 #include "utils/stats.h"
 
+#include <vector>
+
 using namespace options;
 
 namespace pricers {
 
 template <typename T>
 pricing_output<T> SimpleSequentialPricer<T>::price(pricing_args<T>& args) {
-  // parse arguments
-  // option_type_t opt_type = args.options->type; 
-	// bool is_call = args.option->is_call;
-	// T S0  = args.option->S0;
-	// T K   = args.option->K;
-	// T r   = args.option->r;
-	// T ttm = args.option->ttm;
-	// T vol = args.option->vol;
-	size_t num_trials  = args.n_trials;
-	// size_t path_length = args.path_len;
+  auto o = args.option;
+  monte_carlo::RandomWalkGenerator<std::vector<T>> rw(o.S0, o.ttm, o.r, o.vol, args.path_len);
+  monte_carlo::EuropeanPathPayoff<std::vector<T>> epp(o.is_call, o.K);
+  monte_carlo::SimpleMonteCarlo<std::vector<T>, T> mc(rw, epp);
+  
+  auto res = mc.estimate(args.n_trials);
 
-	// // pointer to the payoff function (i.e. put or call)
-	// double (*payoff_func)(double, double) = is_call ? &euro_call_option_payoff : &euro_put_option_payoff;
-	std::vector<T> estimates(num_trials);
   return {
-    stats::mean(estimates),
-    stats::standard_error(estimates)
+    res.estimate,
+    res.stderr
   };
 }
 

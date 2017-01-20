@@ -45,11 +45,11 @@ struct option_params {
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const option_params<T>& o) {
 	return os << o.type << " " 
-			  << (o.is_call ? "call" : "put" ) << " " 
-			  << o.S0 << " " 
-			  << o.r << " " 
-			  << o.ttm << " " 
-			  << o.K << " " 
+			  << (o.is_call ? "call" : "put" ) << " S0=$" 
+			  << o.S0 << " K=$" 
+			  << o.K << " Ttm=" 
+			  << o.ttm << "yrs r="
+			  << o.r << " vol="  
 			  << o.vol;
 }
 
@@ -72,7 +72,7 @@ std::ostream& operator<<(std::ostream& os, const pricing_args<T>& pargs) {
 template <typename T>
 struct pricing_output {
 	T price;
-	T variance;
+	T stderr;
 	
 	float pricing_time;
 };
@@ -80,7 +80,7 @@ struct pricing_output {
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const pricing_output<T>& pout) {
 	return os << "est: " << pout.price 
-			  << ", var: " << pout.variance
+			  << ", stderr: " << pout.stderr
 			  << ", time: " << pout.pricing_time;
 }
 
@@ -114,9 +114,10 @@ std::istream& parse_euro_args(std::istream& is, pricing_args<T>& pargs) {
 		throw std::invalid_argument("must specify call or put, got: " + tmp);
 	}
 
-	return is >> pargs.option.S0 >> pargs.option.r 
-			  >> pargs.option.ttm >> pargs.option.K 
-			  >> pargs.option.vol >> pargs.n_trials;
+	return is >> pargs.option.S0 >> pargs.option.K  
+			  >> pargs.option.ttm >> pargs.option.r
+			  >> pargs.option.vol >> pargs.n_trials
+			  >> pargs.path_len;
 }
 
 template <typename T>
