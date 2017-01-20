@@ -7,7 +7,7 @@
 namespace monte_carlo {
 
 template <class T>
-RandomWalkGenerator<T>::RandomWalkGenerator(ValueT S0, ValueT t, ValueT r, ValueT vol, size_t path_len) 
+GeometricRandomWalkGenerator<T>::GeometricRandomWalkGenerator(ValueT S0, ValueT t, ValueT r, ValueT vol, size_t path_len) 
 	: S0(S0), t(t), r(r), vol(vol), path_len(path_len), distribution(0.0, 1.0) {
 	assert(S0 > 0 && "initial stock price must be positive");
 	assert(t >= 0 && "ttm must be non negative");
@@ -16,10 +16,10 @@ RandomWalkGenerator<T>::RandomWalkGenerator(ValueT S0, ValueT t, ValueT r, Value
 }
 
 template <class T>
-RandomWalkGenerator<T>::~RandomWalkGenerator() {}
+GeometricRandomWalkGenerator<T>::~GeometricRandomWalkGenerator() {}
 
 template <class T>
-void RandomWalkGenerator<T>::generateSample(T& path) {
+void GeometricRandomWalkGenerator<T>::generateSample(T& path) {
 	path.resize(path_len);
     ValueT log_price = log(S0);
 	const ValueT dt = t / path_len; // time step

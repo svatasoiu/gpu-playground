@@ -62,12 +62,17 @@ int main(int argc, char **argv) {
 
     // run each pricer
     for (auto pricer : pricers) {
-      GpuTimer timer;
-      timer.Start();
-      pricing_output = pricer->price(pargs);
-      timer.Stop();
-      cudaDeviceSynchronize(); 
-      pricing_output.pricing_time = timer.Elapsed();
+      try {
+        GpuTimer timer;
+        timer.Start();
+        pricing_output = pricer->price(pargs);
+        timer.Stop();
+        cudaDeviceSynchronize(); 
+        pricing_output.pricing_time = timer.Elapsed();
+      } catch (std::exception& err) {
+        std::cerr << "  " << pricer->getName() << ": Error [" << err.what() << "]" << std::endl;
+        continue;
+      }
       std::cout << "  " << pricer->getName() << ": " << pricing_output << std::endl;
     }
 

@@ -20,12 +20,12 @@ public:
 };
 
 template <class T>
-class RandomWalkGenerator : public SampleGenerator<T> {
+class GeometricRandomWalkGenerator : public SampleGenerator<T> {
     // static assert T has some sort of ordering (like vector)
 private:
     using ValueT = typename T::value_type;
     static_assert(std::is_floating_point<ValueT>::value,
-        "RandomWalkGenerator requires a container of floating point type");
+        "GeometricRandomWalkGenerator requires a container of floating point type");
 
     const ValueT S0, t, r, vol;
     const size_t path_len;
@@ -33,8 +33,8 @@ private:
     std::default_random_engine generator;
     std::normal_distribution<ValueT> distribution;
 public:
-    RandomWalkGenerator(ValueT S0, ValueT t, ValueT r, ValueT vol, size_t path_len);
-    ~RandomWalkGenerator();
+    GeometricRandomWalkGenerator(ValueT S0, ValueT t, ValueT r, ValueT vol, size_t path_len);
+    ~GeometricRandomWalkGenerator();
 
     void generateSample(T&);
 };
