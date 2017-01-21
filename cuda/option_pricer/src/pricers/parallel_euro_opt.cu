@@ -24,7 +24,7 @@ void simulate_euro_payoff_kernel(T * const d_payoffs, const ui seed, const bool 
     return;
 
   curandState_t state;
-  curand_init(seed + x, 0, 0, &state);
+  curand_init(seed + N * x, 0, 0, &state);
   const T rnd = (T) curand_normal(&state);
 	const double c1 = (r - vol * vol / 2.0) * t;
 	const double c2 = vol * sqrt(t);
